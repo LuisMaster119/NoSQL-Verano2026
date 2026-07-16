@@ -24,7 +24,7 @@
 {
   "id": 119,
   "nombre": "Un loco viaje al pasado",
-  "director": "Steve Pink",
+  "director": "Steve Pinknp,",
   "anio": 2010,
   "duracion": 101,
   "genero": "Comedia"
