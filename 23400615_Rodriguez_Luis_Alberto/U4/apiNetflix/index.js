@@ -1,6 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
+const cors = require("cors");
 
 const app = express();
 
@@ -9,7 +10,7 @@ app.use(morgan("dev"));
 
 const PORT = 3000;
 
-// ==================== CONEXIÓN A MONGODB ATLAS ====================
+// conexion a MongoDB Atlas
 const MONGO_URI = "mongodb+srv://grupo:grupo@servidorprueba.ygegryf.mongodb.net/netflix";
 
 mongoose.connect(MONGO_URI)
@@ -52,7 +53,7 @@ const peliculasSchema = new mongoose.Schema(
 const Serie = mongoose.model("Serie", seriesSchema, "series");
 const Pelicula = mongoose.model("Pelicula", peliculasSchema, "peliculas");
 
-// ==================== RUTAS: SERIES ====================
+// series
 
 app.get("/series", async (req, res) => {
   try {
@@ -158,7 +159,7 @@ app.delete("/series/:id", async (req, res) => {
   }
 });
 
-// ==================== RUTAS: PELICULAS ====================
+// peliculas
 
 app.get("/peliculas", async (req, res) => {
   try {
@@ -264,7 +265,7 @@ app.delete("/peliculas/:id", async (req, res) => {
   }
 });
 
-// ==================== RUTA RAIZ ====================
+// raiz
 
 app.get("/", (req, res) => {
   res.send("API de Netflix (series y peliculas) funcionando");
