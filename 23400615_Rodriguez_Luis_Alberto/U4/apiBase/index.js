@@ -1,95 +1,145 @@
 const express  = require('express');
 const morgan = require('morgan');
+const mongoose = require("mongoose");
 const app = express();
 app.use(express.json());
 const PORT = 3000;
 
 app.use(morgan('dev'));
 
-let alumnos = [
+mongoose.connect("mongodb://127.0.0.1:27017/escuela")
+.then(()=>{
+    console.log('Conectado correctamente a MongoDB');
+})
+.catch((error)=>{
+    console.error('Error al conectar a MongoDB: ',error);
+});
+
+const alumnoSchema = new mongoose.Schema(
     {
-        id:1,
-        nombre:'Luis',
-        carrera:'ISC',
-        semestre: 9
+        nombre: {type: String, required:true, trim:true},
+        carrera: {type: String, required:true, trim:true},
+        semestre: {type: Number, required:true, min:1}
     },
-    {
-        id:2,
-        nombre:'Diego',
-        carrera:'ARQ',
-        semestre:6
-    }
-]
+    { timestamps:true }
+);
 
-app.post('/alumnos', (req,res) => {
-    const {nombre, carrera, semestre} = req.body;
-    if(!nombre || !carrera || !semestre){
-        return res.status(400).json({
-            mensaje:'Faltan datos del alumno'
+const Alumno = mongoose.model("Alumno", alumnoSchema, "alumnos");
+
+app.post('/alumnos', async (req,res) => {
+    try{
+        const {nombre, carrera, semestre} = req.body;
+        if(!nombre || !carrera || !semestre){
+            return res.status(400).json({
+                mensaje:'Faltan datos del alumno'
+            });
+        }
+
+        const nuevoAlumno = new Alumno({
+            nombre,carrera,semestre
         });
-    }
 
-    const nuevoAlumno = {
-        id: alumnos.length+1,
-        nombre: nombre,
-        carrera: carrera,
-        semestre: semestre
-    }
+        const alumnoGuardado = await nuevoAlumno.save();
 
-    alumnos.push(nuevoAlumno)
-    res.json({
-        mensaje:'Alumno registrado correctamente',
-        alumno: nuevoAlumno
-    });
+        res.json({
+            mensaje: 'Alumno creado correctamente',
+            alumno:alumnoGuardado
+        })
+    }catch(error){
+        res.status(500).json({
+            mensaje: 'Error al obtener los alumnos',
+            error:error
+        })
+    }
 })
 
-app.put('/alumnos/:id',(req,res)=>{
-    const id = parseInt(req.params.id);
-    const {nombre,carrera,semestre} = req.body;
+app.put('/alumnos/:id', async (req,res)=>{
+    try{
+        const id = req.params.id;
+        const {nombre,carrera,semestre} = req.body;
 
-    if(!nombre || !carrera || !semestre){
-        return res.status(400).json({
-            mensaje:'Faltan datos del alumno'
-        });
+        if(!nombre || !carrera || !semestre){
+            return res.status(400).json({
+                mensaje:'Faltan datos del alumno'
+            });
+        }
+
+        const alumnoActualizado = await Alumno.findByIdAndUpdate(id, {nombre,carrera,semestre}, {new:true, runValidators:true});
+
+        if(!alumnoActualizado){
+            return res.status(404).json({
+                mensaje:"Alumno no encontrado"
+            });
+        }
+
+        res.json({
+            mensaje: 'Alumno actualizado correctamente',
+            alumno: alumnoActualizado
+        })
+    }catch(error){
+        res.status(500).json({
+            mensaje: 'Error al obtener los alumnos',
+            error:error
+        })
     }
-
-    const indice = alumnos.findIndex(alumno => alumno.id === id);
-
-    if(indice ===-1){
-        return res.status(404).json({
-            mensaje:'Alumno no encontrado'
-        });
-    }
-
-    alumnos[indice]={
-        id:id,
-        nombre: nombre,
-        carrera: carrera,
-        semestre: semestre
-    }
-
-    res.json({
-        mensaje: 'Alumno actualizado correctamente',
-        alumno: alumnos[indice]
-    })
 })
 
-app.get('/alumnos',(req,res)=>{
-    res.json(alumnos);
-})
+app.delete('/alumnos/:id', async (req,res)=>{
+    try{
+        const id = req.params.id;
 
-app.get('/alumnos/:id', (req,res) => {
-    const id = parseInt(req.params.id);
-    const alumno = alumnos.find(alumno => alumno.id === id);
+        const alumnoEliminado = await Alumno.findByIdAndDelete(id);
 
-    if(!alumno){
-        return res.status(404).json({
-            mensaje:'Alumno no encontrado'
+
+        if(!alumnoEliminado){
+            return res.status(404).json({
+                mensaje: 'Alumno no encontrado'
+            });
+        }
+
+        res.json({
+            mensaje: 'Alumno eliminado correctamente',
+            alumno: alumnoEliminado
         });
+    }catch(error){
+        res.status(500).json({
+            mensaje: 'Error al obtener los alumnos',
+            error:error
+        })
     }
-
-    res.json(alumno);
 })
+
+app.get('/alumnos',async (req,res)=>{
+    try{
+        const alumnos = await Alumno.find();
+        res.json(alumnos);
+    }catch{
+        res.status(500).json({
+            mensaje: 'Error al obtener los alumnos',
+            error:error
+        })
+    }
+})
+
+app.get('/alumnos/:id', async (req,res) => {
+    try{
+        const id = req.params.id;
+        const alumno = await Alumno.findById(id);
+
+            if(!alumno){
+            return res.status(404).json({
+                mensaje:'Alumno no encontrado'
+            });
+        }
+
+        res.json(alumno);
+    }catch{
+        res.status(500).json({
+            mensaje: 'Error al obtener el alumno',
+            error:error
+        })
+    }
+});
 
 app.get("/", (req, res) => {
     res.send("Hola Mundo");
