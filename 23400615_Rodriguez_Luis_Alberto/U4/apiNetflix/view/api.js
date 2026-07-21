@@ -1,4 +1,4 @@
-const API_URL = "URL_VERCEL";
+const API_URL = "https://api-netflix-peach.vercel.app/";
 
 // Obtener películas
 async function obtenerPeliculas() {
