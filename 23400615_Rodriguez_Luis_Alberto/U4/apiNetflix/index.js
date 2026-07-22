@@ -11,15 +11,6 @@ app.use(morgan("dev"));
 const PORT = 3000;
 
 // conexion a MongoDB Atlas
-const MONGO_URI = "mongodb+srv://grupo:grupo@servidorprueba.ygegryf.mongodb.net/netflix";
-
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log("Conectado correctamente a MongoDB Atlas (netflix)");
-  })
-  .catch((error) => {
-    console.error("Error al conectar con MongoDB:", error);
-  });
 
 // ==================== SCHEMAS ====================
 
@@ -271,6 +262,19 @@ app.get("/", (req, res) => {
   res.send("API de Netflix (series y peliculas) funcionando");
 });
 
-app.listen(PORT, () => {
-  console.log("Servidor iniciado en http://localhost:" + PORT);
-});
+async function iniciarServidor() {
+  try{
+    await mongoose.connect(
+      "mongodb+srv://grupo:grupo@servidorprueba.ygegryf.mongodb.net/netflix"
+    );
+
+    console.log("Conectado correctamente a MongoDB")
+
+    app.listen(PORT, () => {
+      console.log("Servidor iniciado en http://localhost:" + PORT);
+    });
+  } catch (error){
+    console.error("No se pudo coenctar con MongoDB");
+    console.error(error.message);
+  }
+}
