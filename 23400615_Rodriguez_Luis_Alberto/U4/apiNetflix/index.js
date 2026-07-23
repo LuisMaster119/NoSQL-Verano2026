@@ -278,3 +278,5 @@ async function iniciarServidor() {
     console.error(error.message);
   }
 }
+
+iniciarServidor();

@@ -3,104 +3,134 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Consumir API REST</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo · API Netflix</title>
 
-    <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            width: 600px;
-            margin: 30px auto;
-        }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        input {
-            display: block;
-            width: 100%;
-            padding: 8px;
-            margin: 10px 0;
-        }
-
-        button {
-            padding: 10px 15px;
-            margin: 10px 0;
-            cursor: pointer;
-        }
-
-        ul {
-            margin-top: 20px;
-        }
-
-        li {
-            margin: 8px 0;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <h1>Películas</h1>
+    <header class="topbar">
+        <div class="wordmark">CATÁLOGO<span>.</span></div>
 
-    <h2>Registrar película</h2>
+        <nav class="tabs" id="tabs">
+            <button class="tab active" data-tipo="series">Series</button>
+            <button class="tab" data-tipo="peliculas">Películas</button>
+        </nav>
+    </header>
 
-    <form id="formulario">
+    <main class="layout">
 
-        <input
-            type="text"
-            id="titulo"
-            placeholder="Título"
-            required
-        >
+        <!-- ============ PANEL FORMULARIO ============ -->
+        <section class="panel-form">
 
-        <input
-            type="text"
-            id="genero"
-            placeholder="Género"
-            required
-        >
+            <h2 id="formTitulo">Nueva serie</h2>
+            <p class="form-hint" id="formHint">Completa la ficha para agregarla al catálogo.</p>
 
-        <input
-            type="number"
-            id="año"
-            placeholder="Año"
-            required
-        >
+            <form id="formSeries" class="form" data-tipo="series">
+                <input type="hidden" id="serieId">
 
-        <input
-            type="number"
-            id="duracion"
-            placeholder="Duración"
-            required
-        >
+                <label>Título
+                    <input type="text" id="s_titulo" placeholder="Ej. Stranger Things" required>
+                </label>
 
-        <input
-            type="text"
-            id="idioma"
-            placeholder="Idioma"
-            required
-        >
+                <label>Género
+                    <input type="text" id="s_genero" placeholder="Ej. Ciencia ficción" required>
+                </label>
 
-        <input
-            type="number"
-            id="calificacion"
-            placeholder="Calificación"
-            min="0"
-            max="10"
-            step="0.1"
-            required
-        >
+                <div class="row">
+                    <label>Año
+                        <input type="number" id="s_anio" placeholder="2016" required>
+                    </label>
+                    <label>Idioma
+                        <input type="text" id="s_idioma" placeholder="Inglés" required>
+                    </label>
+                </div>
 
-        <button type="submit">
-            Guardar película
-        </button>
+                <div class="row">
+                    <label>Temporadas
+                        <input type="number" id="s_temporadas" min="1" placeholder="4" required>
+                    </label>
+                    <label>Episodios
+                        <input type="number" id="s_episodios" min="1" placeholder="34" required>
+                    </label>
+                </div>
 
-    </form>
+                <div class="row">
+                    <label>Calificación
+                        <input type="number" id="s_calificacion" min="0" max="10" step="0.1" placeholder="8.7" required>
+                    </label>
+                    <label>Clasificación
+                        <input type="text" id="s_nc" placeholder="TV-14">
+                    </label>
+                </div>
 
-    <hr>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="s_btnGuardar">Guardar serie</button>
+                    <button type="button" class="btn-ghost" id="s_btnCancelar" hidden>Cancelar edición</button>
+                </div>
+            </form>
 
-    <button id="btnConsultar">
-        Consultar películas
-    </button>
+            <form id="formPeliculas" class="form" data-tipo="peliculas" hidden>
+                <input type="hidden" id="peliculaId">
 
-    <ul id="listaPeliculas"></ul>
+                <label>Título
+                    <input type="text" id="p_titulo" placeholder="Ej. El irlandés" required>
+                </label>
+
+                <label>Género
+                    <input type="text" id="p_genero" placeholder="Ej. Drama" required>
+                </label>
+
+                <div class="row">
+                    <label>Año
+                        <input type="number" id="p_anio" placeholder="2019" required>
+                    </label>
+                    <label>Idioma
+                        <input type="text" id="p_idioma" placeholder="Inglés" required>
+                    </label>
+                </div>
+
+                <div class="row">
+                    <label>Duración (min)
+                        <input type="number" id="p_duracion" min="1" placeholder="209" required>
+                    </label>
+                    <label>Clasificación
+                        <input type="text" id="p_nc" placeholder="R">
+                    </label>
+                </div>
+
+                <label>Calificación
+                    <input type="number" id="p_calificacion" min="0" max="10" step="0.1" placeholder="7.8" required>
+                </label>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="p_btnGuardar">Guardar película</button>
+                    <button type="button" class="btn-ghost" id="p_btnCancelar" hidden>Cancelar edición</button>
+                </div>
+            </form>
+
+        </section>
+
+        <!-- ============ PANEL CATÁLOGO ============ -->
+        <section class="panel-catalogo">
+
+            <div class="catalogo-head">
+                <h2 id="catalogoTitulo">En catálogo</h2>
+                <button id="btnConsultar" class="btn-outline">Actualizar lista</button>
+            </div>
+
+            <ul id="lista" class="grid"></ul>
+
+            <p id="vacio" class="vacio" hidden>Aún no hay títulos registrados. Agrega el primero desde el formulario.</p>
+
+        </section>
+
+    </main>
 
     <script src="api.js"></script>
     <script src="app.js"></script>
